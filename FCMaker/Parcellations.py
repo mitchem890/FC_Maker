@@ -38,7 +38,7 @@ class parcellation(object):
         self.get_new_order()
 
     # Search through the Key to look for the search terms given in the network_dict
-    # So this will return the a dictionary with networdks as the Keys and a list of parcels numbers that belong to that network
+    # So this will return the a dictionary with networks as the Keys and a list of parcels numbers that belong to that network
     def get_line_num_dict(self):
 
         line_num_dict = {}
@@ -86,34 +86,34 @@ def build_Matrix(parcellation, net_file, fisherz=False, unordered=False):
         line_count = 0
         #Create a Zero matix the size of num of parcels x num of parcels
         a = np.zeros((parcellation.num_of_parcels, parcellation.num_of_parcels))
-
-
         for row in csv_reader:
-
             #Skip the headers
             if line_count < skip_line:
                 line_count += 1
             else:
                 if not unordered:
                     a[parcellation.new_order.index(int(row[0]) - 1), parcellation.new_order.index(
-                        int(row[1]) - 1 )] = float(row[2])
+                        int(row[1]) - 1)] = float(row[2])
                 else:
                     a[int(row[0]) - 1, int(row[1]) - 1] = float(row[2])
                 line_count += 1
 
 
-    a = (a + a.T) / 2
+    a = (a + a.T)
+
 
     if fisherz:
+
+        a = np.arctanh(a)
         max = np.amax(a)
         min = np.amin(a)
-        a = np.arctanh(a)
-
         np.fill_diagonal(a, np.inf)
+
     else:
         max = np.amax(a)
         min = np.amin(a)
         np.fill_diagonal(a, 1.)
+    a = a.round(5)
     return a, max, min
 
 
@@ -169,7 +169,8 @@ def plot_correlation_matrix(parcellation, subject, output_file, matrix, max, min
 #write the matrix to a csv
 def write_out_correlation(matrix, out_file):
     print("Writing out matix: " + out_file)
-    np.savetxt(out_file, matrix, delimiter=",")
+    np.set_printoptions(suppress=True, formatter={'float_kind':'{:16.3f}'.format}, linewidth=130)
+    np.savetxt(out_file, matrix, '%5.5f', delimiter=",")
 
 #Check to see if we have setup that parcellation scheme
 def check_input(net_file):
@@ -191,9 +192,12 @@ def check_input(net_file):
     elif net_file.parcellation == 'schaefer200':
         print("Sorry " + net_file.parcellation + " has not yet been implemented")
         exit()
-    elif net_file.parcellation == 'schaefer400':
+    elif net_file.parcellation == 'schaefer400' or net_file.parcellation == 'schaefer400x7':
         print("Using " + net_file.parcellation)
         parcellation = Schaefer400
+    elif net_file.parcellation == 'schaefer400x17':
+        print(f"Using {net_file.parcellation}")
+        parcellation = Schaefer400x17
     else:
         print("Could not recognize parcellation: " + net_file.parcellation)
         exit()
@@ -204,7 +208,7 @@ def check_input(net_file):
 #Encapsulates all the processing
 def run(net_file, parcellation, outputDir, fisherz, scaleBounds, outputUnordered, outputNewOrder):
     matrix, max, min = build_Matrix(parcellation=parcellation, net_file=net_file,
-                                                  fisherz=False, unordered=outputUnordered)
+                                                  fisherz=fisherz, unordered=outputUnordered)
     if (scaleBounds):
         max = float(scaleBounds)
         min = -1 * max
@@ -240,9 +244,42 @@ Power264 = parcellation(parcellation='Power264', network_dict=network_dict, key_
 
 
 # The Network Dict is a network network name with the key value of what to look for in the key
-network_dict = {'Default': 'Default', 'Visual': 'Vis', 'Cont': 'Cont', 'DorsalAttn': 'DorsAttn', 'VentAttn':
-    'SalVentAttn', 'SomatoMotor': 'SomMot', 'Limbic': 'Limbic'}
+network_dict = {'Default': 'Default',
+                'Visual': 'Vis',
+                'Cont': 'Cont',
+                'DorsalAttn': 'DorsAttn',
+                'VentAttn': 'SalVentAttn',
+                'SomatoMotor': 'SomMot',
+                'Limbic': 'Limbic'}
 #The file name of the key
 key_name = '/usr/ParcellationKeys/schaeferKey400.csv'
 Schaefer400 = parcellation(parcellation='Schaefer400', network_dict=network_dict, key_file=key_name,
                             num_of_parcels=400)
+
+# The Network Dict is a network network name with the key value of what to look for in the key
+network_dict = {'defaultA': 'defaultA',
+                'defaultB': 'defaultB',
+                'defaultC': 'defaultC',
+                'visualCentral': 'visualCentral',
+                'visualPeripheral': 'visualPeripheral',
+                'frontoparietalControlA': 'frontoparietalControlA',
+                'frontoparietalControlB': 'frontoparietalControlB',
+                'frontoparietalControlC': 'frontoparietalControlC',
+                'dorsalAttentionA': 'dorsalAttentionA',
+                'dorsalAttentionB': 'dorsalAttentionB',
+                'salienceVentralAttentionA': 'salienceVentralAttentionA',
+                'salienceVentralAttentionB': 'salienceVentralAttentionB',
+                'somatomotorA': 'somatomotorA',
+                'somatomotorBAuditory': 'somatomotorBAuditory',
+                'limbicOrbitofrontal': 'limbicOrbitofrontal',
+                'limbicTemporopolar': 'limbicTemporopolar',
+                'temporoparietal': 'temporoparietal'}
+
+#The file name of the key
+key_name = '/usr/ParcellationKeys/schaeferKey400x17.csv'
+
+Schaefer400x17 = parcellation(parcellation='Schaefer400', network_dict=network_dict, key_file=key_name,
+                              num_of_parcels=400)
+
+
+

@@ -30,9 +30,7 @@ scaleBounds = args.scaleBounds
 outputUnordered = args.outputUnordered
 outputNewOrder = args.outputNewOrder
 
-
 #input_file = '/home/mitchell/Desktop/sub-155938_power264.net'
-print(input_file)
 net_file = Parcellations.net_file(input_file)
 
 parcellation = Parcellations.check_input(net_file)
@@ -43,4 +41,4 @@ Parcellations.run(net_file=net_file, parcellation=parcellation, outputDir=output
                  ,scaleBounds=scaleBounds, outputUnordered=False, outputNewOrder=outputNewOrder)
 if outputUnordered:
     Parcellations.run(net_file=net_file, parcellation=parcellation, outputDir=outputDir, fisherz=fisherz
-                      , scaleBounds=scaleBounds, outputUnordered=outputUnordered,outputNewOrder=outputNewOrder)
+                      , scaleBounds=scaleBounds, outputUnordered=outputUnordered, outputNewOrder=outputNewOrder)
