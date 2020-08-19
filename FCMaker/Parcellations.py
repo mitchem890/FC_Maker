@@ -166,11 +166,13 @@ def plot_correlation_matrix(parcellation, subject, output_file, matrix, max, min
     plt.set_cmap('seismic')
     plt.savefig(output_file,bbox_inches='tight',pad_inches=.25, dpi=400)
 
+
 #write the matrix to a csv
 def write_out_correlation(matrix, out_file):
     print("Writing out matix: " + out_file)
     np.set_printoptions(suppress=True, formatter={'float_kind':'{:16.3f}'.format}, linewidth=130)
     np.savetxt(out_file, matrix, '%5.5f', delimiter=",")
+
 
 #Check to see if we have setup that parcellation scheme
 def check_input(net_file):
